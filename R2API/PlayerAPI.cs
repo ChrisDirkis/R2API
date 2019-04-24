@@ -31,7 +31,8 @@ namespace R2API
 				effectAction(playerStats);
 			}
 
-			characterBody.statsDirty = false;
+            // TODO This was made private. Necessary?
+			characterBody.SetFieldValue("statsDirty", false);
 		}
 	}
 
