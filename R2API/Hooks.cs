@@ -11,6 +11,7 @@
 			ItemDropAPI.InitHooks();
 			InventoryAPI.InitHooks();
             StageAPI.InitHooks();
+			EntityAPI.InitHooks();
 		}
 	}
 }

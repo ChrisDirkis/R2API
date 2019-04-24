@@ -62,7 +62,7 @@ namespace R2API
 
         private static void OnPrePopulateScene(SceneDirector director)
         {
-            var stageInfo = SceneInfo.instance.GetComponent<ClassicStageInfo>();
+            var stageInfo = StageInfo;
             originalSelection = stageInfo.interactableSelection;
 
             spawnInfo = new InteractableSelections()
@@ -77,19 +77,52 @@ namespace R2API
             stageInfo.interactableSelection = spawnInfo.Regular;
         }
 
-        private static void OnPostPopulateScene(SceneDirector director)
-        {
-            var stageInfo = SceneInfo.instance.GetComponent<ClassicStageInfo>();
-            stageInfo.interactableSelection = originalSelection;
-        }
+        private static void OnPostPopulateScene(SceneDirector director) => StageInfo.interactableSelection = originalSelection;
 
         private static void PopulateEarly(SceneDirector director) => Populate(director, spawnInfo.Early);
 
         private static void PopulateLate(SceneDirector director) => Populate(director, spawnInfo.Late);
 
+        // Almost identical to the source, sans the interactableCredit
         private static void Populate(SceneDirector director, List<CardSpawnEntry> toSpawn) {
-            // TODO
+            var placementRule = new DirectorPlacementRule();
+            placementRule.placementMode = DirectorPlacementRule.PlacementMode.Random;
+
+            foreach (var spawnEntry in toSpawn)
+            {
+                if (spawnEntry.Card == null || !spawnEntry.Card.CardIsValid())
+                {
+                    continue;
+                }
+                foreach (var _ in Enumerable.Range(0, spawnEntry.Limit))
+                {
+                    var i = 0;
+                    while (i < 10)
+                    {
+                        if (TrySpawnCard(director, spawnEntry.Card, placementRule))
+                            break;
+                        else
+                            i++;
+                    }
+                }
+            }
         }
+
+        private static bool TrySpawnCard(SceneDirector director, DirectorCard card, DirectorPlacementRule rule)
+        {
+            var spawnedObject = director.directorCore.TrySpawnObject(card, rule, director.rng);
+            if (spawnedObject)
+            {
+                var purchaseInteraction = spawnedObject.GetComponent<PurchaseInteraction>();
+                if (purchaseInteraction && purchaseInteraction.costType == CostType.Money)
+                {
+                    purchaseInteraction.Networkcost = Run.instance.GetDifficultyScaledCost(purchaseInteraction.cost);
+                }
+            }
+            return spawnedObject;
+        }
+
+        private static ClassicStageInfo StageInfo => SceneInfo.instance.GetComponent<ClassicStageInfo>();
 
         private static WeightedSelection<T> Clone<T>(this WeightedSelection<T> initial)
         {
