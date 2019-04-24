@@ -39,7 +39,44 @@ namespace R2API
 
         public delegate void SpawnInfoModifier(ClassicStageInfo stage, InteractableSelections inputSpawnInfo);
 
-        public static event SpawnInfoModifier modifySpawnSelectionForStage;
+        public static void AddModifier(SpawnInfoModifier modifier, int priority = 0)
+        {
+            lock (modifiers)
+            {
+                var initialPriority = priority;
+                while (modifiers.TryGetValue(priority, out _))
+                {
+                    priority++;
+                }
+
+                R2API.Logger.LogInfo($"Interactable spawn modifier priority collision: Tried to add at {initialPriority}, ended up at {priority}");
+
+                modifiers.Add(priority, modifier);
+            }
+        }
+
+        public static void RemoveModifier(SpawnInfoModifier modifier)
+        {
+            lock (modifiers)
+            {
+                var key = modifiers
+                    .Cast<KeyValuePair<int, SpawnInfoModifier>?>()
+                    .FirstOrDefault(kvp => kvp.Value.Value == modifier)
+                    ?.Key;
+
+                if (!key.HasValue)
+                {
+                    R2API.Logger.LogWarning($"Failed to remove interactable spawn modifier");
+                    return;
+                }
+
+                modifiers.Remove(key.Value);
+                R2API.Logger.LogInfo($"Removed modifier at {key.Value}");
+            }
+        }
+
+
+        private static SortedList<int, SpawnInfoModifier> modifiers = new SortedList<int, SpawnInfoModifier>();
 
         private static WeightedSelection<DirectorCard> originalSelection;
         private static InteractableSelections spawnInfo;
@@ -81,11 +118,14 @@ namespace R2API
             spawnInfo = new InteractableSelections()
             {
                 Early = new List<CardSpawnEntry>(),
-                Regular = Clone(originalSelection),
+                Regular = originalSelection.Clone(),
                 Late = new List<CardSpawnEntry>(),
             };
 
-            modifySpawnSelectionForStage?.Invoke(stageInfo, spawnInfo);
+            foreach (var modifier in modifiers.Values)
+            {
+                modifier(stageInfo, spawnInfo);
+            }
 
             stageInfo.interactableSelection = spawnInfo.Regular;
         }
@@ -137,14 +177,31 @@ namespace R2API
 
         private static ClassicStageInfo StageInfo => SceneInfo.instance.GetComponent<ClassicStageInfo>();
 
-        private static WeightedSelection<T> Clone<T>(this WeightedSelection<T> initial)
+        private static WeightedSelection<DirectorCard> Clone(this WeightedSelection<DirectorCard> original)
         {
-            var clone = new WeightedSelection<T>();
-            foreach (var choice in initial.choices)
+            var clone = new WeightedSelection<DirectorCard>();
+            foreach (var choice in original.choices)
             {
-                clone.AddChoice(choice);
+                clone.AddChoice(choice.value.Clone(), choice.weight);
             }
             return clone;
+        }
+
+        private static DirectorCard Clone(this DirectorCard original)
+        {
+            return new DirectorCard()
+            {
+                allowAmbushSpawn = original.allowAmbushSpawn,
+                cost = original.cost,
+                forbiddenUnlockable = original.forbiddenUnlockable,
+                minimumStageCompletions = original.minimumStageCompletions,
+                preventOverhead = original.preventOverhead,
+                requiredUnlockable = original.requiredUnlockable,
+                selectionWeight = original.selectionWeight,
+                spawnCard = original.spawnCard,
+                spawnDistance = original.spawnDistance,
+            };
+            
         }
     }
 }
