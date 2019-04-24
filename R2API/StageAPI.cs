@@ -1,11 +1,11 @@
-﻿using BepInEx.Logging;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
+
 using RoR2;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 
 namespace R2API
 {
@@ -13,6 +13,14 @@ namespace R2API
     /// Provides an API to modify spawns of interactibles in the stage.
     /// Users register to the modifySpawnSelectionForStage callback
     /// and modify the InteractableSelections object that's passed through.
+    /// 
+    /// Example usage:
+    /// StageAPI.AddModifier((stage, info) => {
+    ///     foreach (var card in info.Regular.choices) {
+    ///         card.value.cost /= 2f; // All original cards are around twice as likely to spawn
+    ///     }
+    /// }, -1000);
+    /// 
     /// </summary>
     public static class StageAPI
     {
