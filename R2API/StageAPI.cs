@@ -9,6 +9,11 @@ using System.Linq;
 
 namespace R2API
 {
+    /// <summary>
+    /// Provides an API to modify spawns of interactibles in the stage.
+    /// Users register to the modifySpawnSelectionForStage callback
+    /// and modify the InteractableSelections object that's passed through.
+    /// </summary>
     public static class StageAPI
     {
         public class InteractableSelections
