@@ -9,6 +9,7 @@
             InventoryAPI.InitHooks();
             EntityAPI.InitHooks();
             LobbyConfigAPI.InitHooks();
+            StageAPI.InitHooks();
         }
     }
 }
