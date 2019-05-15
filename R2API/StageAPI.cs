@@ -167,11 +167,14 @@ namespace R2API
                     }
                 }
             }
+            R2API.Logger.LogInfo("Populated unbudgeted cards");
         }
 
         private static bool TrySpawnCard(SceneDirector director, DirectorCard card, DirectorPlacementRule rule)
         {
-            var spawnedObject = director.directorCore.TrySpawnObject(card, rule, director.rng);
+            var directorCore = director.GetFieldValue<DirectorCore>("directorCore");
+            var rng = director.GetFieldValue<Xoroshiro128Plus>("rng");
+            var spawnedObject = directorCore.TrySpawnObject(card, rule, rng);
             if (spawnedObject)
             {
                 var purchaseInteraction = spawnedObject.GetComponent<PurchaseInteraction>();
