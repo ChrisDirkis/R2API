@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+	  <OutputType>Library</OutputType>
+
+		<IsPackable>false</IsPackable>
+	  <TestProjectType>UnitTest</TestProjectType>
+
+	</PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\R2API\libs\Assembly-CSharp.dll</HintPath>
+    </Reference>
+
+    <Reference Include="MonoMod.Utils">
+	    <HintPath>..\R2API\libs\MonoMod.Utils.dll</HintPath>
+	    <Private>true</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+	    <HintPath>..\R2API\libs\UnityEngine.dll</HintPath>
+	    <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+	    <HintPath>..\R2API\libs\UnityEngine.CoreModule.dll</HintPath>
+	    <Private>true</Private>
+    </Reference>
+    <!--<Reference Include="UnityEngine.Networking">
+	    <HintPath>libs\UnityEngine.Networking.dll</HintPath>
+	    <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+	    <HintPath>libs\UnityEngine.UI.dll</HintPath>
+	    <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+	    <HintPath>libs\UnityEngine.UIModule.dll</HintPath>
+	    <Private>false</Private>
+    </Reference>-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\R2API\R2API.csproj" />
+  </ItemGroup>
+
+</Project>
