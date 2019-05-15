@@ -1,6 +1,7 @@
-﻿using Mono.Cecil.Cil;
+﻿using BepInEx.Logging;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
-
+using R2API.Utils;
 using RoR2;
 
 using System;
@@ -48,8 +49,14 @@ namespace R2API
                 {
                     priority++;
                 }
-
-                R2API.Logger.LogInfo($"Interactable spawn modifier priority collision: Tried to add at {initialPriority}, ended up at {priority}");
+                if (priority == initialPriority)
+                {
+                    R2API.Logger.LogInfo($"Interactable spawn modifier added at {priority}");
+                }
+                else
+                {
+                    R2API.Logger.LogInfo($"Interactable spawn modifier priority collision: Tried to add at {initialPriority}, ended up at {priority}");
+                }
 
                 modifiers.Add(priority, modifier);
             }
@@ -138,6 +145,7 @@ namespace R2API
 
         // Almost identical to the source, sans the interactableCredit
         private static void Populate(SceneDirector director, List<CardSpawnEntry> toSpawn) {
+            R2API.Logger.LogInfo("Populating unbudgeted cards");
             var placementRule = new DirectorPlacementRule();
             placementRule.placementMode = DirectorPlacementRule.PlacementMode.Random;
 
